@@ -16,7 +16,7 @@ type Episode struct {
 	ReleaseDate   string `json:"releaseDate"`
 	Special       bool   `json:"special"`
 	Desc          string `json:"desc"`
-	Duration      string `json:"duration_seconds"`
+	Duration      int    `json:"duration_seconds"`
 	Libsyn        string `json:"libsyn"`
 }
 
@@ -95,6 +95,63 @@ func EpCount() (count int) {
 	}
 
 	return count
+}
+
+// SpecialEpCount counts the number of episodes
+func SpecialEpCount() (count int) {
+	rows, err := db.Query("SELECT COUNT(*) FROM episodes WHERE special = true")
+	if err != nil {
+		panic(err)
+	} else {
+		// This is really important for some reason
+		defer rows.Close()
+		for rows.Next() {
+			err := rows.Scan(&count)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	return count
+}
+
+// AvgLength returns the average length over all episodes (in seconds)
+func AvgLength() (length int) {
+	rows, err := db.Query("SELECT ROUND(AVG(duration_seconds),0) FROM episodes WHERE special = false")
+	if err != nil {
+		panic(err)
+	} else {
+		// This is really important for some reason
+		defer rows.Close()
+		for rows.Next() {
+			err := rows.Scan(&length)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	return length
+}
+
+// AvgLengthSpecial returns the average length over all episodes (in seconds)
+func AvgLengthSpecial() (length int) {
+	rows, err := db.Query("SELECT ROUND(AVG(duration_seconds),0) FROM episodes")
+	if err != nil {
+		panic(err)
+	} else {
+		// This is really important for some reason
+		defer rows.Close()
+		for rows.Next() {
+			err := rows.Scan(&length)
+			if err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	return length
 }
 
 // InsertEpisode creates an episode type?
